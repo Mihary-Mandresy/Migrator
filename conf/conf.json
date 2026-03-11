@@ -1,0 +1,12 @@
+{
+  "database": {
+    "host": "localhost",
+    "dbname": "spr",
+    "user": "spr",
+    "password": "spr"
+  },
+
+  "path": {
+    "migrator": "/home/mihary/Documents/S5/Perso/Python/Migrator/test"
+  }
+}
