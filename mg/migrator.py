@@ -8,15 +8,62 @@ class migrator:
         self.config = config
         self.con = dbConnect(config['database'])
         self.info = self.migratorInfo()
+        self.parser = getArgumentParser()
     
     def run(self):
-        print("run")
+        
+        fileAction = ""
+        if (self.parser.m):
+            fileAction = "up"
+            self.executeAction(fileAction)
+        if (self.parser.r):
+            fileAction = "down"
+            self.executeAction(fileAction)
+        if (self.parser.d):
+            fileAction = "data"
+            self.executeAction(fileAction)
+            
+        if not fileAction:
+            raise Exception("Type d'action inconnue")
+        
+    def executeAction(self, fileAction):
+        infoFiler = self.filtreInfo()
+
+        cursor = self.con.cursor()
+        
+        for info in infoFiler:
+            fileName = os.path.join(f"{info['pos']}_{info['date'].isoformat()}", fileAction + ".sql")
+            try:
+                filePath = os.path.join(self.config['path']['migrator'], fileName)
+                if (os.path.exists(filePath)) :
+                    self.execute(filePath, cursor)
+                    print(fileName, "-"*15, "Succes")
+    
+            except Exception as e:
+                print(fileName, "-"*15, "Error\n" + str(e))
+        
+        cursor.close()
+                        
+        
+    def filtreInfo(self):
+        withFilter = []
+        count = 0
+                
+        for a in range(0, len(self.info)):
+            if (count < self.parser.limite) :
+                if (self.info[a]['pos'] >= self.parser.pos):
+                    withFilter.append(self.info[a])
+                count += 1
+            else:
+                break
+        
+        return withFilter
     
     def migratorInfo(self):
         path = self.config["path"]["migrator"]
-        lsdir = os.listdir(path)        
-        
-        infoDir = [migratorInfoDir(fl) for fl in lsdir]
+        lsdir = os.listdir(path)
+                            
+        infoDir = [migratorInfoDir(fl) for fl in lsdir if "T" in fl]
         infoDir.sort(key=lambda x: x['date'])
         return infoDir
     
@@ -25,11 +72,8 @@ class migrator:
 
         if script:
             cursor.execute(script)
-            self.con.commit()
-            cursor.close()
-        else:
-            print("Aucune requête SQL à exécuter.")
-
+            
+        self.con.commit()
 
     def getScript(self, path):
         with open(path, "r") as f:
