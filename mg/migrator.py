@@ -11,13 +11,13 @@ class migrator:
     
     def run(self):
         print("run")
-        
+    
     def migratorInfo(self):
         path = self.config["path"]["migrator"]
         lsdir = os.listdir(path)        
         
         infoDir = [migratorInfoDir(fl) for fl in lsdir]
-        
+        infoDir.sort(key=lambda x: x['date'])
         return infoDir
     
     def execute(self, path, cursor):        
