@@ -2,6 +2,7 @@ import os.path as path
 import json
 import argparse
 from datetime import datetime
+from math import inf
 
 def getConfig():
     base_dir = path.dirname(path.dirname(path.abspath(__file__)))
@@ -18,7 +19,7 @@ def getArgumentParser():
     parser.add_argument("-d", action="store_true")
     
     parser.add_argument('--pos', type=int, default=0)
-    parser.add_argument('--limite', type=int)
+    parser.add_argument('--limite', type=int, default=inf)
     
     return parser.parse_args()
 
